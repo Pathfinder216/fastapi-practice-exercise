@@ -24,6 +24,19 @@ Processes a multi-part uploaded CSV file, validating each row, inserting valid r
 
 ---
 
+## Data Model
+
+| Field           | Type            | Validation          | Example                |
+| --------------- | --------------- | ------------------- | ---------------------- |
+| `person_id`     | string          | Required, unique    | `p001`                 |
+| `first_name`    | string          | Alphabetic only     | `John`                 |
+| `last_name`     | string          | Alphabetic only     | `Smith`                |
+| `email`         | string          | Valid email address | `john.smith@gmail.com` |
+| `date_of_birth` | date            | Not in the future   | `2025-02-14`           |
+| `income`        | float, optional | ≥ 0 if present      | `3.14159`              |
+
+---
+
 ## Running the App
 
 ### Installing Dependencies
