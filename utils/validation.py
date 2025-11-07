@@ -24,5 +24,5 @@ def is_alpha(value: str) -> str:
 
 def is_not_future(value: date) -> date:
     if value > date.today():
-        raise ValueError(f"'{value} is a future date")
+        raise ValueError(f"'{value}' is a future date")
     return value
