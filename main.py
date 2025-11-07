@@ -5,7 +5,7 @@ from typing import Any, AsyncGenerator, Sequence
 from fastapi import FastAPI
 from pydantic import ValidationError
 
-from database import create_db, insert_people, select_people
+from database import create_db, get_existing_ids, insert_people, select_people
 from models import Person, PersonCreate, PersonResponse
 from schemas import UploadResponse, UploadErrorResponse, UploadSummaryResponse
 
@@ -32,9 +32,9 @@ async def get_people() -> Sequence[Person]:
 @app.post("/upload")
 async def upload_csv(filename: str) -> UploadResponse:
     with open(filename) as f:
-        people_to_add: dict[str, Person] = {}
+        people_from_file: dict[str, Person] = {}
         errors: list[UploadErrorResponse] = []
-        file_duplicates = 0
+        num_file_duplicates = 0
 
         for row_num, row in enumerate(csv.DictReader(f), start=1):
             try:
@@ -47,20 +47,25 @@ async def upload_csv(filename: str) -> UploadResponse:
                     )
                 )
             else:
-                if person.person_id in people_to_add:
-                    file_duplicates += 1
+                if person.person_id in people_from_file:
+                    num_file_duplicates += 1
                 else:
-                    people_to_add[person.person_id] = Person(**person.model_dump())
+                    people_from_file[person.person_id] = Person(**person.model_dump())
 
-        db_duplicates = await insert_people(
-            people_to_add.values(), person_ids=set(people_to_add)
-        )
+        db_duplicates = set(await get_existing_ids(people_from_file))
+        people_to_insert = [
+            person
+            for person_id, person in people_from_file.items()
+            if person_id not in db_duplicates
+        ]
+
+        await insert_people(people_to_insert)
 
         summary = UploadSummaryResponse(
-            total_rows=len(people_to_add) + len(errors) + file_duplicates,
-            valid_rows=len(people_to_add) - db_duplicates,
+            total_rows=len(people_from_file) + len(errors) + num_file_duplicates,
+            valid_rows=len(people_to_insert),
             invalid_rows=len(errors),
-            duplicates_skipped=file_duplicates + db_duplicates,
+            duplicates_skipped=num_file_duplicates + len(db_duplicates),
         )
 
     return UploadResponse(summary=summary, errors=errors)

@@ -16,29 +16,20 @@ async def create_db() -> None:
         await conn.run_sync(DBBase.metadata.create_all)
 
 
-async def insert_people(
-    people: Iterable[Person], *, person_ids: set[str] | None = None
-) -> int:
-    """Returns number of duplicates skipped."""
-    if person_ids is None:
-        person_ids = {person.person_id for person in people}
+async def get_existing_ids(ids: Iterable[str]) -> Sequence[str]:
+    async with ASYNC_SESSION() as session:
+        duplicate_id_statement = select(Person.person_id).where(
+            Person.person_id.in_(ids)
+        )
+        result = await session.scalars(duplicate_id_statement)
+        return result.all()
 
+
+async def insert_people(people: Iterable[Person]):
+    """Returns number of duplicates skipped."""
     async with ASYNC_SESSION() as session:
         async with session.begin():
-            duplicate_id_statement = select(Person.person_id).where(
-                Person.person_id.in_(person_ids)
-            )
-            result = await session.scalars(duplicate_id_statement)
-            duplicate_person_ids = set(result.all())
-            people_to_add = [
-                person
-                for person in people
-                if person.person_id not in duplicate_person_ids
-            ]
-
-            session.add_all(people_to_add)
-
-    return len(duplicate_person_ids)
+            session.add_all(people)
 
 
 async def select_people() -> Sequence[Person]:
