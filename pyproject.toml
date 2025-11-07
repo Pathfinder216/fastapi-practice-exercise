@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "fastapi-practice-exercise"
+version = "0.1.0"
+description = ""
+authors = ["Ben Green <benno.green@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["standard"], version = "^0.120.4"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.44"}
+aiosqlite = "^0.21.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
