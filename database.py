@@ -37,3 +37,10 @@ async def select_people() -> Sequence[Person]:
     async with ASYNC_SESSION() as session:
         result = await session.scalars(select(Person))
         return result.all()
+
+
+async def delete_all_data() -> None:
+    async with ASYNC_SESSION() as session:
+        async with session.begin():
+            for table in reversed(DBBase.metadata.sorted_tables):
+                await session.execute(table.delete())

@@ -5,7 +5,13 @@ from typing import Any, AsyncGenerator, Sequence
 from fastapi import FastAPI
 from pydantic import ValidationError
 
-from database import create_db, get_existing_ids, insert_people, select_people
+from database import (
+    create_db,
+    delete_all_data,
+    get_existing_ids,
+    insert_people,
+    select_people,
+)
 from models import Person, PersonCreate, PersonResponse
 from schemas import UploadResponse, UploadErrorResponse, UploadSummaryResponse
 
@@ -69,3 +75,9 @@ async def upload_csv(filename: str) -> UploadResponse:
         )
 
     return UploadResponse(summary=summary, errors=errors)
+
+
+@app.post("/clear")
+async def clear() -> dict[str, Any]:
+    await delete_all_data()
+    return {"status": 200, "description": "successfully cleared data"}
