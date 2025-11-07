@@ -28,7 +28,7 @@ async def get_existing_ids(ids: Iterable[str]) -> Sequence[str]:
 async def insert_people(people: Iterable[Person]):
     """Returns number of duplicates skipped."""
     async with ASYNC_SESSION() as session:
-        async with session.begin():
+        async with session.begin():  # TODO: helper to avoid nested context managers?
             # TODO: on conflict do nothing
             session.add_all(people)
 
