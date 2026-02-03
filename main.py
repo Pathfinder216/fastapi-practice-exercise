@@ -41,8 +41,7 @@ async def upload_csv(file: UploadFile = File(...)) -> UploadResponse:
     if not (file.filename and file.filename.endswith(".csv")):
         raise HTTPException(status_code=415, detail="Only CSV files are supported")
 
-    # TODO: don't block main thread when reading file
-    contents = StringIO(file.file.read().decode())
+    contents = StringIO((await file.read()).decode())
 
     people_from_file: dict[str, Person] = {}
     errors: list[UploadErrorResponse] = []
