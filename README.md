@@ -57,5 +57,5 @@ fastapi dev
 
 ### Example Usage
 ```bash
-curl -X POST "http://127.0.0.1:8000/upload?filename=sample_data%2Fsample.csv"
+curl -X POST http://127.0.0.1:8000/upload -F "file=@sample_data/sample.csv"
 ```

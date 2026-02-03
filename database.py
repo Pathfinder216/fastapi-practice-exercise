@@ -27,9 +27,6 @@ async def get_existing_ids(ids: Iterable[str]) -> Sequence[str]:
 
 
 async def insert_people(people: Iterable[Person]) -> None:
-    if not people:
-        return
-
     rows = [
         {
             col.name: getattr(p, col.name)
@@ -38,6 +35,8 @@ async def insert_people(people: Iterable[Person]) -> None:
         }
         for p in people
     ]
+    if not rows:
+        return
     async with ASYNC_SESSION.begin() as session:
         stmt = sqlite_insert(Person).on_conflict_do_nothing(
             index_elements=[Person.person_id]

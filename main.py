@@ -74,7 +74,7 @@ async def upload_csv(file: UploadFile = File(...)) -> UploadResponse:
 
     summary = UploadSummaryResponse(
         total_rows=len(people_from_file) + len(errors) + num_file_duplicates,
-        valid_rows=len(people_to_insert),
+        inserted_rows=len(people_to_insert),
         invalid_rows=len(errors),
         duplicates_skipped=num_file_duplicates + len(db_duplicates),
     )

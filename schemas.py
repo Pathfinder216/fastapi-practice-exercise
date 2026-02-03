@@ -3,7 +3,7 @@ from typing_extensions import TypedDict
 
 class UploadSummaryResponse(TypedDict):
     total_rows: int
-    valid_rows: int
+    inserted_rows: int
     invalid_rows: int
     duplicates_skipped: int
 
