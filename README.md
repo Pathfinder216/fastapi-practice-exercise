@@ -52,10 +52,12 @@ poetry install
 
 ### Running the Backend
 ```bash
-fastapi dev
+poetry shell fastapi dev
 ```
 
 ### Example Usage
+- Visit `http://127.0.0.1:8000/docs` in a web browser
+- Upload a file via the command line:
 ```bash
 curl -X POST http://127.0.0.1:8000/upload -F "file=@sample_data/sample.csv"
 ```
