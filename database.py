@@ -1,6 +1,7 @@
 from typing import Iterable, Sequence
 
 from sqlalchemy import select
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from models import DBBase, Person
@@ -25,11 +26,23 @@ async def get_existing_ids(ids: Iterable[str]) -> Sequence[str]:
         return result.all()
 
 
-async def insert_people(people: Iterable[Person]):
-    """Returns number of duplicates skipped."""
+async def insert_people(people: Iterable[Person]) -> None:
+    if not people:
+        return
+
+    rows = [
+        {
+            col.name: getattr(p, col.name)
+            for col in Person.__table__.c
+            if col.name != "id"
+        }
+        for p in people
+    ]
     async with ASYNC_SESSION.begin() as session:
-        # TODO: on conflict do nothing
-        session.add_all(people)
+        stmt = sqlite_insert(Person).on_conflict_do_nothing(
+            index_elements=[Person.person_id]
+        )
+        await session.execute(stmt, rows)
 
 
 async def select_people() -> Sequence[Person]:
