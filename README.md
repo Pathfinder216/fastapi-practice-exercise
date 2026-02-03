@@ -52,7 +52,7 @@ poetry install
 
 ### Running the Backend
 ```bash
-poetry shell fastapi dev
+poetry run fastapi dev
 ```
 
 ### Example Usage
